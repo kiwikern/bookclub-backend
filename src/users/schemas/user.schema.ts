@@ -6,3 +6,10 @@ export const UserSchema = new Schema({
   email: { type: String, unique: true, sparse: true },
   name: String,
 });
+
+const removePassword = (doc, ret, options) => {
+  delete ret.password;
+  return ret;
+};
+
+UserSchema.set('toJSON', { virtuals: true, versionKey: false, transform: removePassword });
