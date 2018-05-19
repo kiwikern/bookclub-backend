@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { sign } from 'jsonwebtoken';
+import { compare, hash } from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { IJwtPayload } from './jwt-payload.interface';
 import { IUser } from '../users/interfaces/user.interface';
@@ -27,8 +28,9 @@ export class AuthService {
   }
 
   async register(user: UserCreateRequestDto): Promise<UserCreateResponseDto> {
-    // TODO: encrypt password
-    const newUser = await this.usersService.createUser(user);
+    const encryptedPassword = await this.encryptPassword(user.password);
+    const encryptedUser = Object.assign({}, user, {password: encryptedPassword});
+    const newUser = await this.usersService.createUser(encryptedUser);
     const jwt = await this.generateToken(newUser._id);
     return { username: newUser.username, jwt };
   }
@@ -43,12 +45,12 @@ export class AuthService {
     return sign({ userId }, 'secret', { expiresIn });
   }
 
-  private encryptPassword(password: string): string {
-    return '';
+  private async encryptPassword(password: string): Promise<string> {
+    return await hash(password, 10);
   }
 
-  private verifyPassword(password: string, encryptedPassword: string): boolean {
-    return true;
+  private async verifyPassword(password: string, encryptedPassword: string): Promise<boolean> {
+    return await compare(password, encryptedPassword);
   }
 
 }
