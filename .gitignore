@@ -1,0 +1,25 @@
+# config
+.env
+
+# dependencies
+node_modules
+
+# IDE
+.idea/
+build/
+tmp/
+temp/
+/.idea
+/.awcache
+
+# misc
+npm-debug.log
+
+
+# tests
+coverage
+.nyc_output
+
+# dist
+dist
+build
