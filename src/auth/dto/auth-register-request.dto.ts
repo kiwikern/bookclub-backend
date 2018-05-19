@@ -12,5 +12,5 @@ export class AuthRegisterRequestDto {
   @IsString()
   @IsEmail()
   @IsOptional()
-  readonly email: string;
+  readonly email?: string;
 }

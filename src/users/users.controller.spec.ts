@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { getModelToken } from '@nestjs/mongoose';
 
 describe('UsersController', () => {
   let module: TestingModule;
@@ -10,26 +11,23 @@ describe('UsersController', () => {
   beforeEach(async () => {
     module = await Test.createTestingModule({
       controllers: [UsersController],
-      providers: [UsersService],
+      providers: [
+        UsersService,
+        { provide: getModelToken('User'), useValue: null },
+      ],
     }).compile();
 
     usersController = module.get<UsersController>(UsersController);
     userService = module.get<UsersService>(UsersService);
   });
 
-  describe('login', () => {
-    it('should successfully login', () => {
+  describe('get', () => {
+    it('should find user', async () => {
       const response = { username: 'user', jwt: 'jwt' };
-      jest.spyOn(userService, 'login').mockImplementation(() => response);
-      expect(usersController.login(null)).toBe(response);
-    });
-
-    it('should rethrow error', () => {
-      jest.spyOn(userService, 'login').mockImplementation(() => {
-        throw new Error();
-      });
-      expect(() => usersController.login(null)).toThrow();
+      jest.spyOn(userService, 'findById').mockImplementation(() => response);
+      const userId = '2';
+      const userDetails = await usersController.getUserDetails({ userId }, { user: { userId } });
+      expect(userDetails.username).toBe(response.username);
     });
   });
-
 });

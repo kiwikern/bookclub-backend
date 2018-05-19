@@ -20,7 +20,7 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Unknown user');
     }
-    if (!this.verifyPassword(loginDto.password, user.password)) {
+    if (!await this.verifyPassword(loginDto.password, user.password)) {
       throw new UnauthorizedException('Wrong password');
     }
     const jwt = this.generateToken(user.id);

@@ -11,7 +11,6 @@ export class UsersController {
   @Get(':userId')
   @UseGuards(AuthGuard('jwt'))
   async getUserDetails(@Param('userId') userId, @Req() req) {
-    console.log(req.user);
     return await this.userService.findById(userId);
   }
 }
