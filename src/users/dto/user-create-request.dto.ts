@@ -1,6 +1,6 @@
 import { IsEmail, IsOptional, IsString, Length } from 'class-validator';
 
-export class UserRegisterRequestDto {
+export class UserCreateRequestDto {
   @IsString()
   @Length(3, 30)
   readonly username: string;

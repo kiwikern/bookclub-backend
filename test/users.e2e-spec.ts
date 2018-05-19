@@ -18,12 +18,33 @@ describe('UsersController (e2e)', () => {
   describe('POST /login', () => {
 
     it('should accept username', () => {
-
       const loginRequest = { username: 'username', password: 'password' };
       return request(app.getHttpServer())
         .post('/users/login')
         .send(loginRequest)
         .expect(200)
+        .expect({ username: 'user', jwt: 'jwt' });
+    });
+
+  });
+
+  describe('POST /createUser', () => {
+
+    it('should fail without username', () => {
+      const loginRequest = { username: 'username'};
+      return request(app.getHttpServer())
+        .post('/users/createUser')
+        .send(loginRequest)
+        .expect(400)
+        .expect({ username: 'user', jwt: 'jwt' });
+    });
+
+    it('should fail without password', () => {
+      const loginRequest = { username: 'username', password: 'password' };
+      return request(app.getHttpServer())
+        .post('/users/createUser')
+        .send(loginRequest)
+        .expect(400)
         .expect({ username: 'user', jwt: 'jwt' });
     });
 

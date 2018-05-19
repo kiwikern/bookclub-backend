@@ -1,8 +1,6 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { UserLoginRequestDto } from './dto/user-login-request.dto';
+import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UserLoginResponseDto } from './dto/user-login-response.dto';
-import { UserRegisterRequestDto } from './dto/user-register-request.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
 export class UsersController {
@@ -10,15 +8,10 @@ export class UsersController {
   constructor(private userService: UsersService) {
   }
 
-  @Post('login')
-  @HttpCode(HttpStatus.OK)
-  async login(@Body() loginUserDto: UserLoginRequestDto): Promise<UserLoginResponseDto> {
-    return await this.userService.login(loginUserDto);
-  }
-
-  @Post('register')
-  @HttpCode(HttpStatus.OK)
-  async register(@Body() request: UserRegisterRequestDto): Promise<UserLoginResponseDto> {
-    return await this.userService.register(request);
+  @Get(':userId')
+  @UseGuards(AuthGuard('jwt'))
+  async getUserDetails(@Param('userId') userId, @Req() req) {
+    console.log(req.user);
+    return await this.userService.findById(userId);
   }
 }
