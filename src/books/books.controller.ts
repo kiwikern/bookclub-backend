@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { BookCreateRequestDto } from './dto/book-create-request.dto';
 import { BookUpdateRequestDto } from './dto/book-update-request.dto';
@@ -17,6 +17,15 @@ export class BooksController {
   @Get()
   async getAll() {
     return await this.booksService.getAll();
+  }
+
+  @Get('/isbn/:isbn')
+  async findByIsbn(@Param('isbn') isbn) {
+    const formattedIsbn = isbn.replace(/[^\d]/g, '');
+    if (![10, 13].includes(formattedIsbn.length)) {
+      throw new BadRequestException('Invalid ISBN');
+    }
+    return this.booksService.findByIsbn(formattedIsbn);
   }
 
   @Post()

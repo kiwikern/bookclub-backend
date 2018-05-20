@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { HttpService, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { BookCreateRequestDto } from './dto/book-create-request.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -12,7 +12,8 @@ import { IComment } from './interfaces/comment.interface';
 @Injectable()
 export class BooksService {
 
-  constructor(@InjectModel('Books') private readonly booksModel: Model<IBook>) {
+  constructor(@InjectModel('Books') private readonly booksModel: Model<IBook>,
+              private httpService: HttpService) {
   }
 
   async createBook(userId: string, book: BookCreateRequestDto) {
@@ -96,5 +97,14 @@ export class BooksService {
     }
     vote.remove();
     return await book.save();
+  }
+
+  async findByIsbn(formattedIsbn: any) {
+    const google_url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${formattedIsbn}`;
+    const response = await this.httpService.get(google_url).toPromise();
+    if (response.status !== HttpStatus.OK || response.data.totalItems < 1) {
+      throw new NotFoundException('Could not find a corresponding book.');
+    }
+    return response.data.items[0].volumeInfo;
   }
 }
