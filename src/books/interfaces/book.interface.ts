@@ -7,7 +7,7 @@ export interface IBook extends Document {
   author: string;
   url?: string;
   isbn?: string;
-  readyBy?: string[];
+  readBy: string[];
   addedBy: string;
   state: string;
   planningVotes: IVote[];

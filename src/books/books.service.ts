@@ -1,4 +1,4 @@
-import { HttpService, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, HttpService, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { BookCreateRequestDto } from './dto/book-create-request.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -57,7 +57,7 @@ export class BooksService {
   async updateBook(bookId: string, userId: string, bookUpdate: BookUpdateRequestDto) {
     const book = await this.findBookById(bookId);
     if (String(book.addedBy) !== String(userId)) {
-      throw new UnauthorizedException('You are not allowed to update this book.');
+      throw new ForbiddenException('You are not allowed to update this book.');
     }
     return await book.update(bookUpdate);
   }
@@ -68,7 +68,7 @@ export class BooksService {
       throw new NotFoundException('Book could not be found');
     }
     if (String(book.addedBy) !== String(userId)) {
-      throw new UnauthorizedException('You are not allowed to delete this comment.');
+      throw new ForbiddenException('You are not allowed to delete this comment.');
     }
     return await book.remove();
   }
@@ -80,7 +80,7 @@ export class BooksService {
       throw new NotFoundException('Comment could not be found.');
     }
     if (String(comment.userId) !== String(userId)) {
-      throw new UnauthorizedException('You are not allowed to delete this comment.');
+      throw new ForbiddenException('You are not allowed to delete this comment.');
     }
     comment.remove();
     return await book.save();
@@ -93,18 +93,30 @@ export class BooksService {
       throw new NotFoundException('Vote could not be found.');
     }
     if (String(vote.userId) !== String(userId)) {
-      throw new UnauthorizedException('You are not allowed to delete this vote.');
+      throw new ForbiddenException('You are not allowed to delete this vote.');
     }
     vote.remove();
     return await book.save();
   }
 
-  async findByIsbn(formattedIsbn: any) {
+  async findByIsbn(isbn: string) {
+    const formattedIsbn = isbn.replace(/[^\d]/g, '');
+    if (![10, 13].includes(formattedIsbn.length)) {
+      throw new BadRequestException('Invalid ISBN');
+    }
     const google_url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${formattedIsbn}`;
     const response = await this.httpService.get(google_url).toPromise();
     if (response.status !== HttpStatus.OK || response.data.totalItems < 1) {
       throw new NotFoundException('Could not find a corresponding book.');
     }
     return response.data.items[0].volumeInfo;
+  }
+
+  async markRead(bookId: string, userId: string) {
+    const book = await this.findBookById(bookId);
+    if (!book.readBy.map(r => String(r)).includes(String(userId))) {
+      book.readBy.push(userId);
+    }
+    return await book.save();
   }
 }

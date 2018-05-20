@@ -4,7 +4,7 @@ export const BookStates = ['Planning', 'Scheduled', 'Discussed', 'Rejected'];
 export const BookGenres = ['Sachbuch', 'Lyrik', 'Roman'];
 
 const VotesSchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   vote: { type: Number, min: -5, max: 5, required: true },
   comment: String,
 });
@@ -19,7 +19,7 @@ export const BooksSchema = new Schema({
   author: { type: String, required: true },
   url: { type: String },
   isbn: { type: String },
-  readBy: { type: [{ type: Schema.Types.ObjectId, ref: 'User' }], default: [] },
+  readBy: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   addedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   state: { type: String, enum: BookStates, default: BookStates[0] },
   planningVotes: [VotesSchema],
