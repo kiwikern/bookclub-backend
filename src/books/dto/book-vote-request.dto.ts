@@ -1,10 +1,7 @@
-import { IsMongoId, IsNumber, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
+import { IsNumber, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
+import { IVote } from '../interfaces/vote.interface';
 
-export class BookVoteRequestDto {
-  @IsString()
-  @IsMongoId()
-  readonly userId: string;
-
+export class BookVoteRequestDto implements Partial<IVote> {
   @IsNumber()
   @Min(-5)
   @Max(5)

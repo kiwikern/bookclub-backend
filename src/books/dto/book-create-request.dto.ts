@@ -24,17 +24,13 @@ export class BookCreateRequestDto {
   @IsMongoId({ each: true })
   readonly readyBy: string[];
 
-  @IsString()
-  @IsMongoId()
-  readonly addedBy: string;
+  @IsIn(BookGenres)
+  @IsOptional()
+  readonly genre: string;
 
   @IsIn(BookStates)
   @IsOptional()
   readonly state: string;
-
-  @IsIn(BookGenres)
-  @IsOptional()
-  readonly genre: string;
 
   @IsString({ each: true })
   @IsOptional()

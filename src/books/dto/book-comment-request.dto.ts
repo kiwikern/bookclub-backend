@@ -1,10 +1,7 @@
-import { IsMongoId, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IComment } from '../interfaces/comment.interface';
 
-export class BookCommentRequestDto {
-  @IsString()
-  @IsMongoId()
-  readonly userId: string;
-
+export class BookCommentRequestDto implements Partial<IComment> {
   @IsString()
   @MaxLength(500)
   @IsOptional()
