@@ -8,6 +8,7 @@ import { User } from '../auth/user.decorator';
 import { BooksService } from './books.service';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiUseTags } from '@nestjs/swagger';
 import { VotesService } from './votes.service';
+import { OwnerGuard } from '../auth/owner.guard';
 import { Entity } from '../entity.decorator';
 import { IBook } from './interfaces/book.interface';
 
@@ -70,6 +71,7 @@ export class BooksController {
   @ApiResponse({ status: 200, description: 'Returns the deleted book.' })
   @ApiResponse({ status: 401, description: 'Unauthorized. Login is needed.' })
   @ApiResponse({ status: 403, description: 'You are not allowed to delete this book.' })
+  @UseGuards(OwnerGuard)
   @Delete(':bookId')
   async deleteBook(@Entity() book: IBook) {
     return await this.booksService.deleteBook(book);
