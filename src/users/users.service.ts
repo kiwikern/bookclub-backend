@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { IUser } from './interfaces/user.interface';
 import { EntityService } from '../entiy.service.interface';
+import { UserUpdateRequestDto } from './dto/user-update-request.dto';
 
 @Injectable()
 export class UsersService implements EntityService {
@@ -29,5 +30,10 @@ export class UsersService implements EntityService {
 
   async getOwnerId(entityId: string): Promise<string> {
     return entityId;
+  }
+
+  updateUser(user: IUser, userUpdate: UserUpdateRequestDto) {
+    user.set(userUpdate);
+    return user.save();
   }
 }

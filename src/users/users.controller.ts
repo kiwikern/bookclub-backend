@@ -1,8 +1,11 @@
-import { Controller, ForbiddenException, Get, Param, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
-import { User } from '../auth/user.decorator';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiUseTags } from '@nestjs/swagger';
+import { Entity } from '../entity.decorator';
+import { IUser } from './interfaces/user.interface';
+import { OwnerGuard } from '../auth/owner.guard';
+import { UserUpdateRequestDto } from './dto/user-update-request.dto';
 
 @ApiUseTags('users')
 @ApiBearerAuth()
@@ -17,24 +20,20 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'Returns the user for this id.' })
   @ApiResponse({ status: 401, description: 'Unauthorized. You need to be logged in.' })
   @ApiResponse({ status: 403, description: 'You are not allowed to access this user.' })
+  @UseGuards(OwnerGuard)
   @Get(':userId')
-  async getUserDetails(@Param('userId') userId: string, @User('_id') loggedInUserId) {
-    if (loggedInUserId + '' !== userId) {
-      throw new ForbiddenException('No access rights');
-    }
-    return this.userService.findById(userId);
+  async getUserDetails(@Entity() user: IUser) {
+    return user;
   }
 
   @ApiOperation({title: 'User Details', description: 'Get details for one specific user.'})
   @ApiResponse({ status: 200, description: 'Returns the updated user.' })
   @ApiResponse({ status: 401, description: 'Unauthorized. You need to be logged in.' })
   @ApiResponse({ status: 403, description: 'You are not allowed to access this user.' })
+  @UseGuards(OwnerGuard)
   @Put(':userId')
-  async updateUserDetails(@Param('userId') userId: string, @User('_id') loggedInUserId) {
-    if (loggedInUserId + '' !== userId) {
-      throw new ForbiddenException('No access rights');
-    }
-    const user = await this.userService.findById(userId);
-    return user.toJSON();
+  async updateUserDetails(@Entity() user: IUser,
+                          @Body() userUpdate: UserUpdateRequestDto) {
+    return this.userService.updateUser(user, userUpdate);
   }
 }

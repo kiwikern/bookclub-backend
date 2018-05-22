@@ -1,9 +1,10 @@
 import { IsEmail, IsOptional, IsString, Length } from 'class-validator';
 import { ApiModelProperty } from '@nestjs/swagger';
 
-export class UserCreateRequestDto {
+export class UserUpdateRequestDto {
   @IsString()
   @Length(3, 30)
+  @IsOptional()
   @ApiModelProperty()
   readonly username: string;
 

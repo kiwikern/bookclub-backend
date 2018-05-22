@@ -5,7 +5,7 @@ import { BooksController } from './books.controller';
 import { BooksService } from './books.service';
 import { VotesService } from './votes.service';
 import { AuthModule } from '../auth/auth.module';
-import { BooksMiddleware } from './books.middleware';
+import { EntityMiddleware } from '../entity.middleware';
 
 @Module({
   imports: [
@@ -17,9 +17,13 @@ import { BooksMiddleware } from './books.middleware';
   providers: [BooksService, VotesService],
 })
 export class BooksModule {
+
+  constructor(private booksService: BooksService) {}
+
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(BooksMiddleware)
+      .apply(EntityMiddleware)
+      .with([this.booksService, 'bookId'])
       .forRoutes(BooksController);
   }
 }
