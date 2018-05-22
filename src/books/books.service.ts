@@ -18,31 +18,32 @@ export class BooksService implements EntityService {
   async createBook(userId: string, book: BookCreateRequestDto) {
     const newBook: IBook = await new this.booksModel(book);
     newBook.addedBy = userId;
-    return await newBook.save();
+    return newBook.save();
   }
 
   async findById(bookId: string) {
-    return await this.booksModel.findById(bookId);
+    return this.booksModel.findById(bookId);
   }
 
-  async addComment(book: IBook, userId: string, comment: BookCommentRequestDto) {
+  addComment(book: IBook, userId: string, comment: BookCommentRequestDto) {
     book.comments.push({ userId, comment: comment.comment } as IComment);
-    return await book.save();
+    return book.save();
   }
 
-  async getAll() {
-    return await this.booksModel.find();
+  getAll() {
+    return this.booksModel.find();
   }
 
   async updateBook(book: IBook, bookUpdate: BookUpdateRequestDto) {
-    return await book.update(bookUpdate);
+    await book.set(bookUpdate);
+    return book.save();
   }
 
-  async deleteBook(book: IBook) {
+  deleteBook(book: IBook) {
     if (!book) {
       throw new NotFoundException('Book could not be found');
     }
-    return await book.remove();
+    return book.remove();
   }
 
   async deleteComment(book: IBook, commentId: string, userId: string) {
@@ -54,7 +55,7 @@ export class BooksService implements EntityService {
       throw new ForbiddenException('You are not allowed to delete this comment.');
     }
     comment.remove();
-    return await book.save();
+    return book.save();
   }
 
   async findByIsbn(isbn: string) {
@@ -74,7 +75,7 @@ export class BooksService implements EntityService {
     if (!book.readBy.map(r => String(r)).includes(String(userId))) {
       book.readBy.push(userId);
     }
-    return await book.save();
+    return book.save();
   }
 
   async getOwnerId(bookId: string): Promise<string> {
