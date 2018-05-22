@@ -51,7 +51,8 @@
       false
     ],
     "trailing-comma": false,
-    "no-var-requires": false
+    "no-var-requires": false,
+    "no-return-await": true
   },
   "rulesDirectory": []
 }
