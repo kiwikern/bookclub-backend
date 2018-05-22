@@ -45,12 +45,12 @@ export class AuthService {
     return sign({ userId }, 'secret', { expiresIn });
   }
 
-  private async encryptPassword(password: string): Promise<string> {
-    return await hash(password, 10);
+  private encryptPassword(password: string): Promise<string> {
+    return hash(password, 10);
   }
 
-  private async verifyPassword(password: string, encryptedPassword: string): Promise<boolean> {
-    return await compare(password, encryptedPassword);
+  private verifyPassword(password: string, encryptedPassword: string): Promise<boolean> {
+    return compare(password, encryptedPassword);
   }
 
 }

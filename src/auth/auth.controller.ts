@@ -18,7 +18,7 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'You need to provide a proper username and password.' })
   @Post('register')
   async register(@Body() request: UserCreateRequestDto): Promise<UserCreateResponseDto> {
-    return await this.authService.register(request);
+    return this.authService.register(request);
   }
 
   @ApiOperation({title: 'Sign-In', description: 'Login with username and password.'})
@@ -28,7 +28,7 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginUserDto: AuthLoginRequestDto): Promise<AuthLoginResponseDto> {
-    return await this.authService.login(loginUserDto);
+    return this.authService.login(loginUserDto);
   }
 
 }

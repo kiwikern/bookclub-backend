@@ -3,27 +3,31 @@ import { UserCreateRequestDto } from './dto/user-create-request.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { IUser } from './interfaces/user.interface';
+import { EntityService } from '../entiy.service.interface';
 
 @Injectable()
-export class UsersService {
+export class UsersService implements EntityService {
 
   constructor(@InjectModel('User') private readonly userModel: Model<IUser>) {
   }
 
   async createUser(user: UserCreateRequestDto): Promise<IUser> {
     const newUser = new this.userModel(user);
-    await newUser.save();
-    return newUser;
+    return newUser.save();
   }
 
   async findById(userId: string): Promise<IUser | null> {
     if (!Types.ObjectId.isValid(userId)) {
       throw new BadRequestException('Invalid ObjectId');
     }
-    return await this.userModel.findById(userId);
+    return this.userModel.findById(userId);
   }
 
   async findByUsername(username: string): Promise<IUser | null> {
-    return await this.userModel.findOne({username});
+    return this.userModel.findOne({username});
+  }
+
+  async getOwnerId(entityId: string): Promise<string> {
+    return entityId;
   }
 }

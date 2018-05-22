@@ -1,4 +1,4 @@
-import { Controller, ForbiddenException, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, ForbiddenException, Get, Param, Put, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '../auth/user.decorator';
@@ -19,6 +19,18 @@ export class UsersController {
   @ApiResponse({ status: 403, description: 'You are not allowed to access this user.' })
   @Get(':userId')
   async getUserDetails(@Param('userId') userId: string, @User('_id') loggedInUserId) {
+    if (loggedInUserId + '' !== userId) {
+      throw new ForbiddenException('No access rights');
+    }
+    return this.userService.findById(userId);
+  }
+
+  @ApiOperation({title: 'User Details', description: 'Get details for one specific user.'})
+  @ApiResponse({ status: 200, description: 'Returns the updated user.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized. You need to be logged in.' })
+  @ApiResponse({ status: 403, description: 'You are not allowed to access this user.' })
+  @Put(':userId')
+  async updateUserDetails(@Param('userId') userId: string, @User('_id') loggedInUserId) {
     if (loggedInUserId + '' !== userId) {
       throw new ForbiddenException('No access rights');
     }
