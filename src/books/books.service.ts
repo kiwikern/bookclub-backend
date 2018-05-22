@@ -4,9 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { IBook } from './interfaces/book.interface';
 import { BookCommentRequestDto } from './dto/book-comment-request.dto';
-import { BookVoteRequestDto } from './dto/book-vote-request.dto';
 import { BookUpdateRequestDto } from './dto/book-update-request.dto';
-import { IVote } from './interfaces/vote.interface';
 import { IComment } from './interfaces/comment.interface';
 
 @Injectable()
@@ -29,24 +27,6 @@ export class BooksService {
   async addComment(bookId: string, userId: string, comment: BookCommentRequestDto) {
     const book = await this.findBookById(bookId);
     book.comments.push({ userId, comment: comment.comment } as IComment);
-    return await book.save();
-  }
-
-  async addDiscussionVote(bookId: string, userId: string, vote: BookVoteRequestDto) {
-    return this.addVote(bookId, userId, vote, 'discussionVotes');
-  }
-
-  async addPlanningVote(bookId: string, userId: string, vote: BookVoteRequestDto) {
-    return this.addVote(bookId, userId, vote, 'planningVotes');
-  }
-
-  private async addVote(bookId: string, userId: string, vote: BookVoteRequestDto, type: string) {
-    const book = await this.findBookById(bookId);
-    const index = book[type].findIndex(v => String(v.userId) === String(userId));
-    if (index !== -1) {
-      book[type].splice(index, 1);
-    }
-    book[type].push(Object.assign({ userId }, vote) as IVote);
     return await book.save();
   }
 
@@ -83,19 +63,6 @@ export class BooksService {
       throw new ForbiddenException('You are not allowed to delete this comment.');
     }
     comment.remove();
-    return await book.save();
-  }
-
-  async deleteDiscussionVote(bookId: string, voteId: string, userId: string) {
-    const book = await this.findBookById(bookId);
-    const vote = await (book.discussionVotes as Types.DocumentArray<any>).id(voteId);
-    if (!vote) {
-      throw new NotFoundException('Vote could not be found.');
-    }
-    if (String(vote.userId) !== String(userId)) {
-      throw new ForbiddenException('You are not allowed to delete this vote.');
-    }
-    vote.remove();
     return await book.save();
   }
 

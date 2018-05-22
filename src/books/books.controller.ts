@@ -7,6 +7,7 @@ import { BookVoteRequestDto } from './dto/book-vote-request.dto';
 import { User } from '../auth/user.decorator';
 import { BooksService } from './books.service';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiUseTags } from '@nestjs/swagger';
+import { VotesService } from './votes.service';
 
 @Controller('/books')
 @ApiBearerAuth()
@@ -14,7 +15,8 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiUseTags } from '@nestjs/sw
 @UseGuards(AuthGuard('jwt'))
 export class BooksController {
 
-  constructor(private booksService: BooksService) {
+  constructor(private booksService: BooksService,
+              private votesService: VotesService) {
   }
 
   @ApiOperation({ title: 'All Books', description: 'Returns all books that have been stored in the book club.' })
@@ -105,7 +107,7 @@ export class BooksController {
   async addPlanningVote(@Param('bookId') bookId: string,
                         @Body() vote: BookVoteRequestDto,
                         @User('_id') userId: string) {
-    return await this.booksService.addPlanningVote(bookId, userId, vote);
+    return await this.votesService.addPlanningVote(bookId, userId, vote);
 
   }
 
@@ -119,7 +121,7 @@ export class BooksController {
   async addDiscussionVote(@Param('bookId') bookId: string,
                           @Body() vote: BookVoteRequestDto,
                           @User('_id') userId) {
-    return await this.booksService.addDiscussionVote(bookId, userId, vote);
+    return await this.votesService.addDiscussionVote(bookId, userId, vote);
   }
 
   @ApiOperation({ title: 'Delete Discussion Vote', description: 'Deletes a review for a book. Can only be done by the creator.' })
@@ -130,6 +132,6 @@ export class BooksController {
   async deleteDiscussionVote(@Param('bookId') bookId: string,
                              @Param('voteId') voteId: string,
                              @User('_id') userId: string) {
-    return await this.booksService.deleteDiscussionVote(bookId, voteId, userId);
+    return await this.votesService.deleteDiscussionVote(bookId, voteId, userId);
   }
 }
