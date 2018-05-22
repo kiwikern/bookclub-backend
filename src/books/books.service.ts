@@ -6,9 +6,10 @@ import { IBook } from './interfaces/book.interface';
 import { BookCommentRequestDto } from './dto/book-comment-request.dto';
 import { BookUpdateRequestDto } from './dto/book-update-request.dto';
 import { IComment } from './interfaces/comment.interface';
+import { EntityService } from '../entiy.service.interface';
 
 @Injectable()
-export class BooksService {
+export class BooksService implements EntityService {
 
   constructor(@InjectModel('Books') private readonly booksModel: Model<IBook>,
               private httpService: HttpService) {
@@ -20,12 +21,11 @@ export class BooksService {
     return await newBook.save();
   }
 
-  async findBookById(bookId: string) {
+  async findById(bookId: string) {
     return await this.booksModel.findById(bookId);
   }
 
-  async addComment(bookId: string, userId: string, comment: BookCommentRequestDto) {
-    const book = await this.findBookById(bookId);
+  async addComment(book: IBook, userId: string, comment: BookCommentRequestDto) {
     book.comments.push({ userId, comment: comment.comment } as IComment);
     return await book.save();
   }
@@ -34,27 +34,18 @@ export class BooksService {
     return await this.booksModel.find();
   }
 
-  async updateBook(bookId: string, userId: string, bookUpdate: BookUpdateRequestDto) {
-    const book = await this.findBookById(bookId);
-    if (String(book.addedBy) !== String(userId)) {
-      throw new ForbiddenException('You are not allowed to update this book.');
-    }
+  async updateBook(book: IBook, bookUpdate: BookUpdateRequestDto) {
     return await book.update(bookUpdate);
   }
 
-  async deleteBook(bookId: string, userId: string) {
-    const book = await this.findBookById(bookId);
+  async deleteBook(book: IBook) {
     if (!book) {
       throw new NotFoundException('Book could not be found');
-    }
-    if (String(book.addedBy) !== String(userId)) {
-      throw new ForbiddenException('You are not allowed to delete this comment.');
     }
     return await book.remove();
   }
 
-  async deleteComment(bookId: string, commentId: string, userId: string) {
-    const book = await this.findBookById(bookId);
+  async deleteComment(book: IBook, commentId: string, userId: string) {
     const comment = await (book.comments as Types.DocumentArray<any>).id(commentId);
     if (!comment) {
       throw new NotFoundException('Comment could not be found.');
@@ -79,11 +70,15 @@ export class BooksService {
     return response.data.items[0].volumeInfo;
   }
 
-  async markRead(bookId: string, userId: string) {
-    const book = await this.findBookById(bookId);
+  async markRead(book: IBook, userId: string) {
     if (!book.readBy.map(r => String(r)).includes(String(userId))) {
       book.readBy.push(userId);
     }
     return await book.save();
+  }
+
+  async getOwnerId(bookId: string): Promise<string> {
+    const book = await this.findById(bookId);
+    return book.addedBy;
   }
 }

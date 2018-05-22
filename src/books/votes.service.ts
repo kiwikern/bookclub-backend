@@ -3,28 +3,23 @@ import { BooksService } from './books.service';
 import { IVote } from './interfaces/vote.interface';
 import { BookVoteRequestDto } from './dto/book-vote-request.dto';
 import { Types } from 'mongoose';
+import { Entity } from '../entity.decorator';
+import { IBook } from './interfaces/book.interface';
 
 @Injectable()
 export class VotesService {
   constructor(private readonly booksService: BooksService) {
   }
 
-  async addDiscussionVote(bookId: string, userId: string, vote: BookVoteRequestDto) {
-    return this.addVote(bookId, userId, vote, 'discussionVotes');
+  async addDiscussionVote(book: IBook, userId: string, vote: BookVoteRequestDto) {
+    return this.addVote(book, userId, vote, 'discussionVotes');
   }
 
-  async getDiscussionVotes(bookId: string) {
-    const book = await this.booksService.findBookById(bookId);
+  async getDiscussionVotes(book: IBook) {
     return book.discussionVotes;
   }
 
-  async aggregateDiscussionVotes(bookId: string) {
-    const votes = await this.getDiscussionVotes(bookId);
-    return VotesService.aggregateVotes(votes);
-  }
-
-  async deleteDiscussionVote(bookId: string, voteId: string, userId: string) {
-    const book = await this.booksService.findBookById(bookId);
+  async deleteDiscussionVote(book: IBook, voteId: string, userId: string) {
     const vote = await (book.discussionVotes as Types.DocumentArray<any>).id(voteId);
     if (!vote) {
       throw new NotFoundException('Vote could not be found.');
@@ -36,17 +31,16 @@ export class VotesService {
     return await book.save();
   }
 
-  async addPlanningVote(bookId: string, userId: string, vote: BookVoteRequestDto) {
-    return this.addVote(bookId, userId, vote, 'planningVotes');
+  async addPlanningVote(book: IBook, userId: string, vote: BookVoteRequestDto) {
+    return this.addVote(book, userId, vote, 'planningVotes');
   }
 
   async getPlanningVotes(bookId: string) {
-    const book = await this.booksService.findBookById(bookId);
+    const book = await this.booksService.findById(bookId);
     return book.planningVotes;
   }
 
-  private async addVote(bookId: string, userId: string, vote: BookVoteRequestDto, type: string) {
-    const book = await this.booksService.findBookById(bookId);
+  private async addVote(book: IBook, userId: string, vote: BookVoteRequestDto, type: string) {
     const index = book[type].findIndex(v => String(v.userId) === String(userId));
     if (index !== -1) {
       book[type].splice(index, 1);

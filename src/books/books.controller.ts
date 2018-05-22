@@ -8,6 +8,8 @@ import { User } from '../auth/user.decorator';
 import { BooksService } from './books.service';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiUseTags } from '@nestjs/swagger';
 import { VotesService } from './votes.service';
+import { Entity } from '../entity.decorator';
+import { IBook } from './interfaces/book.interface';
 
 @Controller('/books')
 @ApiBearerAuth()
@@ -50,19 +52,18 @@ export class BooksController {
   @ApiResponse({ status: 200, description: 'Returns the updated book.' })
   @ApiResponse({ status: 401, description: 'Unauthorized. Login is needed.' })
   @Put(':bookId')
-  async updateBook(@Param('bookId') bookId: string,
-                   @Body() book: BookUpdateRequestDto,
-                   @User('_id') userId: string) {
-    return await this.booksService.updateBook(bookId, userId, book);
+  async updateBook(@Entity() book: IBook,
+                   @Body() bookUpdate: BookUpdateRequestDto) {
+    return await this.booksService.updateBook(book, bookUpdate);
   }
 
   @ApiOperation({ title: 'Mark Read', description: 'A user can mark a book as read.' })
   @ApiResponse({ status: 200, description: 'Returns the updated book.' })
   @ApiResponse({ status: 401, description: 'Unauthorized. Login is needed.' })
   @Put(':bookId/mark-read')
-  async markRead(@Param('bookId') bookId: string,
+  async markRead(@Entity() book: IBook,
                  @User('_id') userId: string) {
-    return await this.booksService.markRead(bookId, userId);
+    return await this.booksService.markRead(book, userId);
   }
 
   @ApiOperation({ title: 'Delete book', description: 'Deletes an existing book. Can only be done by the creator.' })
@@ -70,9 +71,8 @@ export class BooksController {
   @ApiResponse({ status: 401, description: 'Unauthorized. Login is needed.' })
   @ApiResponse({ status: 403, description: 'You are not allowed to delete this book.' })
   @Delete(':bookId')
-  async deleteBook(@Param('bookId') bookId: string,
-                   @User('_id') userId: string) {
-    return await this.booksService.deleteBook(bookId, userId);
+  async deleteBook(@Entity() book: IBook) {
+    return await this.booksService.deleteBook(book);
 
   }
 
@@ -81,9 +81,9 @@ export class BooksController {
   @ApiResponse({ status: 401, description: 'Unauthorized. Login is needed.' })
   @Post(':bookId/comment')
   async addComment(@User('_id') userId: string,
-                   @Param('bookId') bookId,
+                   @Entity() book: IBook,
                    @Body() comment: BookCommentRequestDto) {
-    return await this.booksService.addComment(bookId, userId, comment);
+    return await this.booksService.addComment(book, userId, comment);
   }
 
   @ApiOperation({ title: 'ISBN Query', description: 'Deletes a comment. Can only be done by the comment\'s creator' })
@@ -91,10 +91,10 @@ export class BooksController {
   @ApiResponse({ status: 401, description: 'Unauthorized. Login is needed.' })
   @ApiResponse({ status: 403, description: 'You are not allowed to delete this comment.' })
   @Delete(':bookId/comment/:commentId')
-  async deleteComment(@Param('bookId') bookId: string,
+  async deleteComment(@Entity() book: IBook,
                       @Param('commentId') commentId: string,
                       @User('_id') userId: string) {
-    return await this.booksService.deleteComment(bookId, commentId, userId);
+    return await this.booksService.deleteComment(book, commentId, userId);
   }
 
   @ApiOperation({
@@ -104,10 +104,10 @@ export class BooksController {
   @ApiResponse({ status: 201, description: 'Returns the newly created vote.' })
   @ApiResponse({ status: 401, description: 'Unauthorized. Login is needed.' })
   @Post(':bookId/planning-vote')
-  async addPlanningVote(@Param('bookId') bookId: string,
+  async addPlanningVote(@Entity() book: IBook,
                         @Body() vote: BookVoteRequestDto,
                         @User('_id') userId: string) {
-    return await this.votesService.addPlanningVote(bookId, userId, vote);
+    return await this.votesService.addPlanningVote(book, userId, vote);
 
   }
 
@@ -118,10 +118,10 @@ export class BooksController {
   @ApiResponse({ status: 201, description: 'Returns the newly created vote.' })
   @ApiResponse({ status: 401, description: 'Unauthorized. Login is needed.' })
   @Post(':bookId/discussion-vote')
-  async addDiscussionVote(@Param('bookId') bookId: string,
+  async addDiscussionVote(@Entity() book: IBook,
                           @Body() vote: BookVoteRequestDto,
                           @User('_id') userId) {
-    return await this.votesService.addDiscussionVote(bookId, userId, vote);
+    return await this.votesService.addDiscussionVote(book, userId, vote);
   }
 
   @ApiOperation({ title: 'Delete Discussion Vote', description: 'Deletes a review for a book. Can only be done by the creator.' })
@@ -129,9 +129,9 @@ export class BooksController {
   @ApiResponse({ status: 401, description: 'Unauthorized. Login is needed.' })
   @ApiResponse({ status: 403, description: 'You are not allowed to delete this vote.' })
   @Delete(':bookId/discussion-vote/:voteId')
-  async deleteDiscussionVote(@Param('bookId') bookId: string,
+  async deleteDiscussionVote(@Entity() book: IBook,
                              @Param('voteId') voteId: string,
                              @User('_id') userId: string) {
-    return await this.votesService.deleteDiscussionVote(bookId, voteId, userId);
+    return await this.votesService.deleteDiscussionVote(book, voteId, userId);
   }
 }
