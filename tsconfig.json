@@ -13,7 +13,7 @@
     "allowJs": true,
     "outDir": "./dist",
     "baseUrl": "./src",
-    "lib": ["es7"]
+    "lib": ["es7", "dom"]
   },
   "include": [
     "src/**/*"
