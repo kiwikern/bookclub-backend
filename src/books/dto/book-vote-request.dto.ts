@@ -4,8 +4,8 @@ import { ApiModelProperty } from '@nestjs/swagger';
 
 export class BookVoteRequestDto implements Partial<IVote> {
   @IsNumber()
-  @Min(-5)
-  @Max(5)
+  @Min(-2)
+  @Max(2)
   @ApiModelProperty()
   readonly vote: number;
 

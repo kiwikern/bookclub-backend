@@ -13,8 +13,14 @@ export class VotesService {
     return this.addVote(bookId, userId, vote, 'discussionVotes');
   }
 
-  async addPlanningVote(bookId: string, userId: string, vote: BookVoteRequestDto) {
-    return this.addVote(bookId, userId, vote, 'planningVotes');
+  async getDiscussionVotes(bookId: string) {
+    const book = await this.booksService.findBookById(bookId);
+    return book.discussionVotes;
+  }
+
+  async aggregateDiscussionVotes(bookId: string) {
+    const votes = await this.getDiscussionVotes(bookId);
+    return VotesService.aggregateVotes(votes);
   }
 
   async deleteDiscussionVote(bookId: string, voteId: string, userId: string) {
@@ -30,6 +36,15 @@ export class VotesService {
     return await book.save();
   }
 
+  async addPlanningVote(bookId: string, userId: string, vote: BookVoteRequestDto) {
+    return this.addVote(bookId, userId, vote, 'planningVotes');
+  }
+
+  async getPlanningVotes(bookId: string) {
+    const book = await this.booksService.findBookById(bookId);
+    return book.planningVotes;
+  }
+
   private async addVote(bookId: string, userId: string, vote: BookVoteRequestDto, type: string) {
     const book = await this.booksService.findBookById(bookId);
     const index = book[type].findIndex(v => String(v.userId) === String(userId));
@@ -38,5 +53,9 @@ export class VotesService {
     }
     book[type].push(Object.assign({ userId }, vote) as IVote);
     return await book.save();
+  }
+
+  static aggregateVotes(votes) {
+    return votes.reduce((sum, v) => sum + v.vote * 2, 0);
   }
 }

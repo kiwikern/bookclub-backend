@@ -1,11 +1,12 @@
 import { Schema } from 'mongoose';
+import { VotesService } from '../votes.service';
 
 export const BookStates = ['Planning', 'Scheduled', 'Discussed', 'Rejected'];
 export const BookGenres = ['Sachbuch', 'Lyrik', 'Roman'];
 
 const VotesSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  vote: { type: Number, min: -5, max: 5, required: true },
+  vote: { type: Number, min: -2, max: 2, required: true },
   comment: String,
 });
 
@@ -28,5 +29,15 @@ export const BooksSchema = new Schema({
   genre: { type: String, enum: BookGenres },
   tags: [String],
 });
+
+BooksSchema.virtual('aggregatedDiscussionVotes', {})
+  .get(function() {
+    return VotesService.aggregateVotes(this.discussionVotes);
+  });
+
+BooksSchema.virtual('aggregatedPlanningVotes', {})
+  .get(function() {
+    return VotesService.aggregateVotes(this.planningVotes);
+  });
 
 BooksSchema.set('toJSON', { virtuals: true, versionKey: false });
