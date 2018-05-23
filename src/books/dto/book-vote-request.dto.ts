@@ -13,6 +13,6 @@ export class BookVoteRequestDto implements Partial<IVote> {
   @MaxLength(500)
   @IsOptional()
   @ApiModelProperty()
-  readonly comment: string;
+  readonly comment?: string;
 
 }

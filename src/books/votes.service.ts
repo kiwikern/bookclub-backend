@@ -3,7 +3,6 @@ import { BooksService } from './books.service';
 import { IVote } from './interfaces/vote.interface';
 import { BookVoteRequestDto } from './dto/book-vote-request.dto';
 import { Types } from 'mongoose';
-import { Entity } from '../entity.decorator';
 import { IBook } from './interfaces/book.interface';
 
 @Injectable()
@@ -49,7 +48,7 @@ export class VotesService {
     return await book.save();
   }
 
-  static aggregateVotes(votes) {
-    return votes.reduce((sum, v) => sum + v.vote * 2, 0);
+  static aggregateVotes(votes: IVote[]) {
+    return votes.reduce((sum, v) => sum + (Math.abs(v.vote) * v.vote), 0);
   }
 }

@@ -12,5 +12,5 @@ export class UserUpdateRequestDto {
   @IsEmail()
   @IsOptional()
   @ApiModelProperty()
-  readonly email: string;
+  readonly email?: string;
 }

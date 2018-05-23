@@ -1,4 +1,4 @@
-import { Injectable, MiddlewareFunction, NestMiddleware } from '@nestjs/common';
+import { Injectable, MiddlewareFunction, NestMiddleware, NotFoundException } from '@nestjs/common';
 import { EntityService } from './entiy.service.interface';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class EntityMiddleware implements NestMiddleware {
       }
       const entity = await entityService.findById(entityId);
       if (!entity) {
-        return next();
+        throw new NotFoundException(`Entity ${entityId} does not exist.`);
       }
       const ownerId = await entityService.getOwnerId(entityId);
       req.entity = entity;

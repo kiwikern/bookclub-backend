@@ -1,5 +1,5 @@
-import { IComment } from './comment.interface';
-
-export interface IVote extends IComment {
+export interface IVote {
   vote: number;
+  userId: string;
+  comment?: string;
 }
