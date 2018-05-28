@@ -72,4 +72,10 @@ describe('AuthService', () => {
     expect(response).toBeTruthy();
   });
 
+  it('should verify user', async () => {
+    jest.spyOn(usersService, 'findById').mockReturnValue('user');
+    const user = await service.verifyUser({ userId: 'id' });
+    expect(user).toBe('user');
+  });
+
 });

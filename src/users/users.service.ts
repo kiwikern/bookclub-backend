@@ -25,14 +25,14 @@ export class UsersService implements EntityService {
   }
 
   async findByUsername(username: string): Promise<IUser | null> {
-    return this.userModel.findOne({username});
+    return this.userModel.findOne({ username });
   }
 
   async getOwnerId(entityId: string): Promise<string> {
     return entityId;
   }
 
-  updateUser(user: IUser, userUpdate: UserUpdateRequestDto) {
+  async updateUser(user: IUser, userUpdate: UserUpdateRequestDto) {
     user.set(userUpdate);
     return user.save();
   }

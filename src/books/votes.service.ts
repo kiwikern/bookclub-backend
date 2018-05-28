@@ -34,8 +34,7 @@ export class VotesService {
     return this.addVote(book, userId, vote, 'planningVotes');
   }
 
-  async getPlanningVotes(bookId: string) {
-    const book = await this.booksService.findById(bookId);
+  async getPlanningVotes(book: IBook) {
     return book.planningVotes;
   }
 
